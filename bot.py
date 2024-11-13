@@ -32,17 +32,19 @@ async def get_number(message: Message, state: FSMContext):
         data = await state.get_data()
         number = message.contact.phone_number
         product = data.get("product")
+        desc = courses.get(product)
         add_user(tg_id=message.from_user.id, phone_number=number, product=product)
         prices = [LabeledPrice(label="Сум", amount=products_price.get(product)*100)]
+        await message.bot.send_message(chat_id=message.from_user.id, text=desc)
         #TODO токен оплаты
         await message.answer_invoice(
             title="Оплата за курс",
-            description=courses.get(product),
+            description=f"Оплатите счет по кнопке",
             prices=prices,
             provider_token="TOKEN",
             payload=str(product),
             currency="UZS",
-            reply_markup=await payment_keyboard(),
+            reply_markup=await payment_keyboard()
         )
         await state.clear()
     else:
